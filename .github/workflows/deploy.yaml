@@ -42,8 +42,7 @@ jobs:
       - name: Atualizar manifestos kubernetes
         run: |
           cd k8s
-          sudo apt-get update && sudo apt-get install -y yq
-          yq eval -i ".spec.template.spec.containers[0].image = \"${{ secrets.DOCKER_USERNAME }}/hello-app-python:${IMAGE_TAG}\"" deployment.yaml
+          sed -i "s|image:.*|image: ${{ secrets.DOCKER_USERNAME }}/hello-app-python:${IMAGE_TAG}|" deployment.yaml
 
       - name: Criar Pull Request
         uses: peter-evans/create-pull-request@v5
