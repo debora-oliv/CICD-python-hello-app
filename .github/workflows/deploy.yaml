@@ -42,7 +42,7 @@ jobs:
       - name: Atualizar manifestos kubernetes
         run: |
           cd k8s
-          sed -i "s|image:.*|image: ${{ secrets.DOCKER_USERNAME }}/hello-app-python:${IMAGE_TAG}|" deployment.yaml
+          sed -i "s|image:.*|image: ${{ secrets.DOCKER_USERNAME }}/hello-app-python:${IMAGE_TAG}|" k8s/deployment.yaml
 
       - name: Criar Pull Request
         uses: peter-evans/create-pull-request@v5
