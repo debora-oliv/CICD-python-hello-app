@@ -14,12 +14,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Logar no Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build e Push da imagem docker
         run: |
           IMAGE_TAG=${GITHUB_SHA::7}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/hello-app-python:$IMAGE_TAG .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/hello-app-python:$IMAGE_TAG ./src
           docker push ${{ secrets.DOCKER_USERNAME }}/hello-app-python:$IMAGE_TAG
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
@@ -31,20 +32,21 @@ jobs:
       - name: Checkout repositório de manifestos
         uses: actions/checkout@v4
         with:
-          repository: debora-oliv/CICD-python-hello-manifests # Substitua pelo seu repositório de manifestos
+          repository: debora-oliv/CICD-python-hello-manifests
           ssh-key: true
           path: k8s
 
       - name: Atualizar manifestos kubernetes
         run: |
           cd k8s
-          yq -i ".spec.template.spec.containers[0].image = \"${{ secrets.DOCKER_USERNAME }}/hello-app-python:${IMAGE_TAG}\"" deployment.yaml
+          sudo apt-get update && sudo apt-get install -y yq
+          yq eval -i ".spec.template.spec.containers[0].image = \"${{ secrets.DOCKER_USERNAME }}/hello-app-python:${IMAGE_TAG}\"" deployment.yaml
 
       - name: Criar Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          path: manifests
-          commit-message: "Atualiza imagem para ${{ secrets.DOCKER_USERNAME }}/meuapp:${{ env.IMAGE_TAG }}"
-          branch: update-image-${{ env.IMAGE_TAG }}
-          title: "Atualiza imagem para ${{ env.IMAGE_TAG }}"
-          body: "Pipeline atualizou a imagem para `${{ secrets.DOCKER_USERNAME }}/meuapp:${{ env.IMAGE_TAG }}`"
+          path: k8s
+          commit-message: "update: imagem docker para ${{ secrets.DOCKER_USERNAME }}/hello-app-python:${IMAGE_TAG}"
+          branch: update-image-${IMAGE_TAG}
+          title: "Atualiza imagem para ${IMAGE_TAG}"
+          body: "Pipeline atualizou a imagem para `${{ secrets.DOCKER_USERNAME }}/hello-app-python:${IMAGE_TAG}`"
