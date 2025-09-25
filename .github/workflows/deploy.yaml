@@ -2,42 +2,49 @@ name: Hello-app deploy
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
 
 jobs:
-  build-and-deploy:
+  build-e-pr:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do código
+      - name: Checkout repositório da aplicação
         uses: actions/checkout@v4
 
-      - name: Login no Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Logar no Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build e Push da imagem
+      - name: Build e Push da imagem docker
         run: |
-          IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/hello-app-python
-          TAG=${{ github.sha }}
-          docker build -t $IMAGE:$TAG .
-          docker push $IMAGE:$TAG
-          echo "IMAGE=$IMAGE:$TAG" >> $GITHUB_ENV
+          IMAGE_TAG=${GITHUB_SHA::7}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/hello-app-python:$IMAGE_TAG .
+          docker push ${{ secrets.DOCKER_USERNAME }}/hello-app-python:$IMAGE_TAG
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
-      - name: Checkout do repositório de manifestos
+      - name: Configurar chave SSH privada
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Checkout repositório de manifestos
         uses: actions/checkout@v4
         with:
-          repository: debora-oliv/CICD-python-hello-manifests
-          token: ${{ secrets.GH_PAT }}
+          repository: debora-oliv/CICD-python-hello-manifests # Substitua pelo seu repositório de manifestos
+          ssh-key: true
           path: k8s
 
-      - name: Atualizar manifestos
-        run: |
-          sed -i "s#docker.io/.*/hello-app-python:.*#${IMAGE}#g" k8s/deployment.yaml
-
-      - name: Commit e Push
+      - name: Atualizar manifestos kubernetes
         run: |
           cd k8s
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git commit -am "update: imagem container para $IMAGE"
-          git push
+          yq -i ".spec.template.spec.containers[0].image = \"${{ secrets.DOCKER_USERNAME }}/hello-app-python:${IMAGE_TAG}\"" deployment.yaml
+
+      - name: Criar Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          path: manifests
+          commit-message: "Atualiza imagem para ${{ secrets.DOCKER_USERNAME }}/meuapp:${{ env.IMAGE_TAG }}"
+          branch: update-image-${{ env.IMAGE_TAG }}
+          title: "Atualiza imagem para ${{ env.IMAGE_TAG }}"
+          body: "Pipeline atualizou a imagem para `${{ secrets.DOCKER_USERNAME }}/meuapp:${{ env.IMAGE_TAG }}`"
