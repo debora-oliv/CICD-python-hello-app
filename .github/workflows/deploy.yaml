@@ -1,4 +1,4 @@
-name: Hello-app CI/CD
+name: Hello-app deploy
 
 on:
   push:
