@@ -12,75 +12,79 @@ Automatizar o ciclo completo de desenvolvimento, build, deploy e execução de u
 
 # Deployment
 
-**1. Fazer um fork desse repositório**
+### Configurar o Argo CD
 
-**2. Criar um repositório para os manifestos**
-
-**3. Criar um arquivo service.yaml e deployment.yaml no repositório dos manifestos**
-
-**4. Configurar o Argo CD no cluster local**
-
-- Criar um namespace
+1. Criar um namespace
     ```sh
     kubectl create namespace argocd
     ```
     
-- Instalar Argo CD no namespace criado
+2. Instalar Argo CD no namespace
     ```sh
     kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
     ```
-    
-**5. Instalar o Argo CD CLI para acesso via linha de comando**
- 
-- Instalar em ambiente **Windows**
-    
+
+3. Instalar o Argo CD CLI
+
+    3.1 Instalar em ambiente **Windows**
     ```sh
     choco install argocd-cli
     ```
-    
-- Instalar em ambiente **Linux**
-    
+
+    3.2 Instalar em ambiente **Linux**
     ```sh
     curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-
+    
     sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-
+    
     rm argocd-linux-amd64
     ```
 
-**6. Logar no Argo CD via linha de comando**
+### Logar no Argo CD
 
-- Pegar senha inicial do Argo CD em ambiente **Windows**
+1. Pegar senha inicial do Argo CD
+
+    1.1 Pegar senha em ambiente **Windows**
     
     ```sh
     [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}")))
     ```
   
-- Pegar senha inicial do Argo CD em ambiente **Linux**
+    1.2 Pegar senha em ambiente **Linux**
     
     ```sh
     kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
     ```
     
-- Port-forward para acessar o ArgoCD
+2. Port-forward para acessar ArgoCD
   
     ```sh
-    kubectl port-forward svc/argocd-server -n argocd 8080:443
+    kubectl port-forward svc/argocd-server -n argocd 38080:443
     ```
 
-- Logar no Argo CD
+3. Logar no Argo CD via linha de comando
   
     ```sh
-    argocd login localhost:8080
+    argocd login localhost:38080
     ```
-    > Usuário: `admin`
-    > 
+    > Usuário: `admin` |
     > Senha: `sua_senha_inicial`
 
-**8. Acessar a aplicação**
+4. Acessar interface do ArgoCD 
 
-No seu browser: `localhost:8080`
+    No seu browser: `localhost:38080`
 
-**9. Acessar a interface do Argo CD**
+### Configurar a aplicação no ArgoCD
 
-No seu browser: `localhost:30080`
+1. Criar a application
+
+    ```sh
+    kubectl apply -f argocd/hello-app-application.yaml
+    ```
+
+2. Conferir pods criados
+   ```sh
+    kubectl get pods -n hello-python
+    ```  
+3. Acessar a aplicação
+   No seu browser: `localhost:8080`
