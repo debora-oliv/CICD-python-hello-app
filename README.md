@@ -87,4 +87,8 @@ Automatizar o ciclo completo de desenvolvimento, build, deploy e execução de u
     kubectl get pods -n hello-python
     ```  
 3. Acessar a aplicação
+<<<<<<< HEAD
    No seu browser: `localhost:8080`
+=======
+   No seu browser: `localhost:8080`
+>>>>>>> 78ae45011cd567e0d32d18b9bd059bf1ef17cd40
