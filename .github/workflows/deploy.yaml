@@ -47,7 +47,7 @@ jobs:
           sed -i "s|image:.*|image: ${{ secrets.DOCKER_USERNAME }}/hello-app-python:${IMAGE_TAG}|" k8s/deployment.yaml
 
       - name: Criar Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           path: k8s
           commit-message: "update: imagem docker para ${{ secrets.DOCKER_USERNAME }}/hello-app-python:${IMAGE_TAG}"
