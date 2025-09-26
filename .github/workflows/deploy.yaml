@@ -25,10 +25,7 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/hello-app-python:$IMAGE_TAG ./src
           docker push ${{ secrets.DOCKER_USERNAME }}/hello-app-python:$IMAGE_TAG
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-          
-  pull-request:
-    runs-on: ubuntu-latest
-    steps:
+
       - name: Configurar chave SSH privada
         uses: webfactory/ssh-agent@v0.7.0
         with:
