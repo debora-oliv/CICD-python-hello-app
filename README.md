@@ -1,7 +1,7 @@
 # Objetivo
 Automatizar o ciclo completo de desenvolvimento, build, deploy e execução de uma aplicação FastAPI simples, usando GitHub Actions para CI/CD, Docker Hub como registry, e ArgoCD para entrega contínua em Kubernetes local com Rancher Desktop.
 
-![Aplicação no Argo CD](https://imgur.com/GD1jkVo)
+![Aplicação no Argo CD](images/argocd-application.PNG)
 
 # Pré-requisitos
 
@@ -91,13 +91,13 @@ Automatizar o ciclo completo de desenvolvimento, build, deploy e execução de u
     kubectl get pods -n hello-python
     ``` 
     
-    ![Pods](https://imgur.com/oJ5oxpi)
+    ![Pods](images/get-pods.PNG)
 
 4. Conferir se a aplicação retona {"message":"Hello World"}
     ```sh
     curl.exe localhost:8080
     ``` 
 
-    ![Curl](https://imgur.com/rFoyMjJ)
+    ![Curl](images/curl.PNG)
 
 5. Acessar no seu browser: `localhost:8080`
