@@ -1,6 +1,8 @@
 # Objetivo
 Automatizar o ciclo completo de desenvolvimento, build, deploy e execução de uma aplicação FastAPI simples, usando GitHub Actions para CI/CD, Docker Hub como registry, e ArgoCD para entrega contínua em Kubernetes local com Rancher Desktop.
 
+![Aplicação no Argo CD](https://imgur.com/GD1jkVo)
+
 # Pré-requisitos
 
 - [ ] Conta no GitHub com repositório público
@@ -59,36 +61,43 @@ Automatizar o ciclo completo de desenvolvimento, build, deploy e execução de u
 2. Port-forward para acessar ArgoCD
   
     ```sh
-    kubectl port-forward svc/argocd-server -n argocd 38080:443
+    kubectl port-forward svc/argocd-server -n argocd 3080:443
     ```
 
 3. Logar no Argo CD via linha de comando
   
     ```sh
-    argocd login localhost:38080
+    argocd login localhost:3080
     ```
     > Usuário: `admin` |
     > Senha: `sua_senha_inicial`
 
-4. Acessar interface do ArgoCD 
+4. Acessar no seu browser: `localhost:3080`
 
-    No seu browser: `localhost:38080`
-
-### Configurar a aplicação no ArgoCD
+### Subir a aplicação no ArgoCD
 
 1. Criar a application
 
     ```sh
     kubectl apply -f argocd/hello-app-application.yaml
     ```
-
-2. Conferir pods criados
-   ```sh
-    kubectl get pods -n hello-python
+2. Port-forward para acessar a aplicação
+    ```sh
+    kubectl port-forward service/hello-app-service 8080:8080 -n hello-python
     ```  
-3. Acessar a aplicação
-<<<<<<< HEAD
-   No seu browser: `localhost:8080`
-=======
-   No seu browser: `localhost:8080`
->>>>>>> 78ae45011cd567e0d32d18b9bd059bf1ef17cd40
+
+3. Conferir pods da aplicação
+    ```sh
+    kubectl get pods -n hello-python
+    ``` 
+    
+    ![Pods](https://imgur.com/oJ5oxpi)
+
+4. Conferir se a aplicação retona {"message":"Hello World"}
+    ```sh
+    curl.exe localhost:8080
+    ``` 
+
+    ![Curl](https://imgur.com/rFoyMjJ)
+
+5. Acessar no seu browser: `localhost:8080`
